@@ -168,28 +168,26 @@ class Analyze():
             aves[i] = np.mean(data[:block])
         return aves
 
-
     def read_segfile(self):
 
-        # segfile should contain at most 3 columns: startres, endres, chain_idx
         try:
             self.segres = np.loadtxt(self.params['segfile'],
                                      dtype=[ ('segres', np.int32, (2,)), ('chain', np.int32, (1)) ])  # ResIDs will be converted to indices with dictionary in segments function
             with open(self.params['logfile'], 'a') as f:
                 f.write("Chain indices read from segments file - segment averaging will be performed on defined chains\n")
             self._single_chain = False
-        except IndexError:
-            tmp_segres = np.loadtxt(self.params['segfile'], dtype=np.int32, usecols=(0,1)) 
-            with open(self.params['logfile'], 'a') as f:
-                f.write("Chain indices NOT read from segments file - segment averaging will be performed on first chain\n")
-            self.segres = np.zeros(len(tmp_segres), dtype=[ ('segres', np.int32, (2,)), ('chain', np.int32, (1)) ])
-            self.segres['segres'] = tmp_segres            
-            self._single_chain = True
-        except ValueError:
-            raise HDX_Error("There's a problem reading the values in your segments file: %s \n"
-                            "File should contain either 2 or 3 columns of integers, separated by spaces.\n"
-                            "Format: start_residue end_residue chain_index[optional]")
-
+        except:
+            try:
+                tmp_segres = np.loadtxt(self.params['segfile'], dtype=np.int32, usecols=(0,1))
+                with open(self.params['logfile'], 'a') as f:
+                    f.write("Chain indices NOT read from segments file - segment averaging will be performed on first chain\n")
+                self.segres = np.zeros(len(tmp_segres), dtype=[ ('segres', np.int32, (2,)), ('chain', np.int32, (1)) ])
+                self.segres['segres'] = tmp_segres
+                self._single_chain = True
+            except:
+                raise HDX_Error("There's a problem reading the values in your segments file: %s \n"
+                                "File should contain either 2 or 3 columns of integers, separated by spaces.\n"
+                                "Format: start_residue end_residue chain_index[optional]")
 
     def read_expfile(self):
         """Reads an experimental data file for comparison to predicted data.
