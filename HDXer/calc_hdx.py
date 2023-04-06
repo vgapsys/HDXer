@@ -79,6 +79,18 @@ def parse():
         except ValueError:
             raise HDX_Error("There's something wrong with the syntax of your options flag. Check it's "
                             "formatted like a Python dictionary")
+    if args.analysis_options is not None:
+        try:
+            optdict = ast.literal_eval(args.analysis_options)
+            if isinstance(optdict, dict):
+                args.analysis_options = optdict
+            else:
+                raise HDX_Error("Your options flag isn't a dictionary. Dictionary format with key/value "
+                                "pairs is required")
+        except ValueError:
+            raise HDX_Error("There's something wrong with the syntax of your options flag. Check it's "
+                            "formatted like a Python dictionary")
+
     return args
 
 
